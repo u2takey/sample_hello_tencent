@@ -1,0 +1,52 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    qcloud-app: hello
+  name: hello
+  namespace: demo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      qcloud-app: demo
+  template:
+    metadata:
+      labels:
+        qcloud-app: demo
+    spec:
+      containers:
+      - image: ccr.ccs.tencentyun.com/kevinhub/sample-hello:0a6f832
+        imagePullPolicy: Always
+        args:
+        - "server"
+        - "--debug"
+        - "--dbconnstr=root:xxx@tcp(10.0.0.4:3306)/test?charset=utf8&parseTime=true"
+        name: hello
+        ports:
+        - containerPort: 8808
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1Gi
+          requests:
+            cpu: 250m
+            memory: 256Mi
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    qcloud-app: demo
+  name: demo
+  namespace: demo
+spec:
+  ports:
+  - name: tcp-80-80-demo
+    port: 80
+    protocol: TCP
+    targetPort: 8808
+  selector:
+    qcloud-app: demo
+  type: LoadBalancer
