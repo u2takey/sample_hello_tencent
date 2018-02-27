@@ -83,13 +83,33 @@ func server(c *cli.Context) error {
 	}
 
 	e := gin.Default()
-	e.GET("/hello", hello)
+	e.GET("/Job", CreateJob)
+	e.POST("/Job", CreateJob)
 
 	// start the server
 	return http.ListenAndServe(
 		c.String("server-addr"),
 		e,
 	)
+}
+
+// Job ...
+type Job struct {
+	Name string
+}
+
+// Res ...
+type Res struct {
+	Response  Job
+	RequestId string
+}
+
+// CreateJob ...
+func CreateJob(c *gin.Context) {
+	c.JSON(200, &Res{
+		Response:  Job{Name: "test"},
+		RequestId: c.Query("RequestId"),
+	})
 }
 
 func hello(c *gin.Context) {
